@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 int clkSensPin = 2;  // sensor pin number for clock in paper code
 int codeSensPin = 4;  // sensor pin number for note code in paper code
 int codeWordLength = 6; // number of bits in the note code word
@@ -6,9 +8,24 @@ enum NOTE {
   IDLE, START, END, 
   NOTE_A2, NOTE_A2s, NOTE_B2, NOTE_C3, NOTE_C3s, NOTE_D3, NOTE_D3s, NOTE_E3, NOTE_F3, NOTE_F3s, NOTE_G3, NOTE_G3s,
   NOTE_A3, NOTE_A3s, NOTE_B3, NOTE_C4, NOTE_C4s, NOTE_D4, NOTE_D4s, NOTE_E4, NOTE_F4, NOTE_F4s, NOTE_G4, NOTE_G4s,
-  NOTE_A4, NOTE_A4s, NOTE_B4, NOTE_C5, NOTE_C5s
+  NOTE_A4, NOTE_A4s, NOTE_B4, NOTE_C5, NOTE_C5s, NOTE_D5, NOTE_D5s, NOTE_E5, NOTE_F5, NOTE_F5s, NOTE_G5
 };
 
+#line 12 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+void setup();
+#line 18 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+void loop();
+#line 22 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+void readData();
+#line 73 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+int debounce(int input, byte buffer);
+#line 84 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+int sensClkPosEdge(int clkdebounced);
+#line 91 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+int parityCheck(byte data);
+#line 99 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+int NoteToFrequency(NOTE note);
+#line 12 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void setup() {
   Serial.begin(9600);       
   pinMode(clkSensPin, INPUT); 
@@ -127,7 +144,14 @@ int NoteToFrequency(NOTE note) {
     case NOTE_B4: return 493;
     case NOTE_C5: return 523;
     case NOTE_C5s: return 554;
+    case NOTE_D5: return 587;
+    case NOTE_D5s: return 622;
+    case NOTE_E5: return 659;
+    case NOTE_F5: return 698;
+    case NOTE_F5s: return 740;
+    case NOTE_G5: return 784;
     default: return -1;
   }
 }
+
 
