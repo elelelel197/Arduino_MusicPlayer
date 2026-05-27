@@ -73,11 +73,25 @@ def main(notes, output_pdf="output.pdf"):
         draw_vertical_stripes(c, x, y, encode_note(note))
         word_count += 1
         y += word_height
-        print(f"Encoded note '{note}' at column {col_count}, word {word_count}, position ({x}mm, {y}mm)")
+        print("Encoded note '{}' at column {}, word {}, position ({}mm, {}mm)".format(note, col_count, word_count, x, y))
 
     c.save()
-    print(f"PDF saved as {output_pdf}")
+    print("PDF saved as {}".format(output_pdf))
 
 if __name__ == "__main__":
-    notes = ["START", "A2", "B2", "C3", "D3", "E3", "F3", "G3", "END"]
+    import sys
+    if len(sys.argv) > 1:
+        # Read notes from the first argument as a text file
+        filename = sys.argv[1]
+        with open(filename, 'r') as f:
+            content = f.read()
+        # Support comma, space, or newline separated notes
+        notes = [n.strip().upper() for n in content.replace(',', ' ').replace('\n', ' ').split() if n.strip()]
+        # Validate notes
+        for n in notes:
+            if n not in NOTE_CODES:
+                print("Unknown note: {}".format(n))
+                sys.exit(1)
+    else:
+        notes = ["START", "A2", "B2", "C3", "D3", "E3", "F3", "G3", "END"]
     main(notes)
