@@ -2,22 +2,33 @@
 
 #define clkSensPin 2  // sensor pin number for clock in paper code
 
-#define codeSensPin 4  // sensor pin number for note code in paper code
+#define codeSensPin 5  // sensor pin number for note code in paper code
 
-#define mtr1fwPin 8  // motor 1 forward pin
-#define mtr1bwPin 9  // motor 1 backward pin
-#define mtr1pwmPin 10 // motor 1 PWM pin
+#define mtr1fwPin 11  // motor 1 forward pin
+#define mtr1bwPin 12  // motor 1 backward pin
+#define mtr1pwmPin 13 // motor 1 PWM pin
 
-#define mtr2fwPin 6 // motor 2 forward pin
-#define mtr2bwPin 7 // motor 2 backward pin
-#define mtr2pwmPin 5 // motor 2 PWM pin
+#define mtr2fwPin 7 // motor 2 forward pin
+#define mtr2bwPin 8 // motor 2 backward pin
+#define mtr2pwmPin 9 // motor 2 PWM pin
 
-#define spkrPin 3 // speaker pin
+#define spkrPin 10 // speaker pin
 
-#define sevsegClkPin 11 // 7-segment display clock pin
-#define sevsegDioPin 12 // 7-segment display data pin
+#define sevsegClkPin 3 // 7-segment display clock pin
+#define sevsegDioPin 4 // 7-segment display data pin
 
-#define codeWordLength 6 // number of bits in the note code word
+#define btnPlayPin A0 // play button pin
+#define btnPausePin A1 // pause button pin
+#define btnRestartPin A2 // restart button pin
+#define btnReadPin A3 // read button pin
+#define btnSetTrackPin A4 // set track button pin
+
+#define CODE_WORD_LENGTH 6 // number of bits in the note code word
+
+#define NOTE_DURATION 500 // duration of each note in milliseconds
+
+#define MAX_TRACKS 5 // maximum number of tracks/players
+#define MAX_NOTES_PER_TRACK 100 // maximum number of notes per track
 
 enum NOTE {
   IDLE, START, END, 
@@ -26,48 +37,108 @@ enum NOTE {
   NOTE_A4, NOTE_A4s, NOTE_B4, NOTE_C5, NOTE_C5s
 };
 
-void setup() {
-  Serial.begin(9600);       
+enum STATE {
+  IDLE, READ, PLAY, PAUSED, RESTART, SET_TRACK
+};
+
+NOTE noteMemory[MAX_TRACKS][MAX_NOTES_PER_TRACK] = IDLE; // 2D array to store the note codes for each player, initialized to IDLE
+
+void setup() {Serial.begin(9600);
+         
   pinMode(clkSensPin, INPUT); 
-  pinMode(codeSensPin, INPUT); 
+  pinMode(codeSensPin, INPUT);
+
+  pinMode(mtr1fwPin, OUTPUT);
+  pinMode(mtr1bwPin, OUTPUT);
+  pinMode(mtr1pwmPin, OUTPUT);
+  pinMode(mtr2fwPin, OUTPUT);
+  pinMode(mtr2bwPin, OUTPUT);
+  pinMode(mtr2pwmPin, OUTPUT);
+
+  pinMode(spkrPin, OUTPUT); 
+
+  pinMode(sevsegClkPin, OUTPUT);
+  pinMode(sevsegDioPin, OUTPUT);
+
+  pinMode(btnPlayPin, INPUT_PULLDOWN);
+  pinMode(btnPausePin, INPUT_PULLDOWN);
+  pinMode(btnRestartPin, INPUT_PULLDOWN);
+  pinMode(btnReadPin, INPUT_PULLDOWN);
+  pinMode(btnSetTrackPin, INPUT_PULLDOWN);
 }
 
 void loop() {
-  readData();
-}
+  static int currentTrack = 0; // variable to keep track of the current track/player
+  static int noteIndex = 0; // variable to keep track of the current note index for the current track
+  static STATE currentState = IDLE; // variable to keep track of the current state of the system
+  static STATE nextState = IDLE; // variable to keep track of the next state of the system
+  static lastNoteTime = 0; // variable to keep track of the time when the last note was played
 
-int NoteToFrequency(NOTE note) {
-  switch (note) {
-    case NOTE_A2: return 110;
-    case NOTE_A2s: return 116;
-    case NOTE_B2: return 123;
-    case NOTE_C3: return 130;
-    case NOTE_C3s: return 138;
-    case NOTE_D3: return 146;
-    case NOTE_D3s: return 155;
-    case NOTE_E3: return 164;
-    case NOTE_F3: return 174;
-    case NOTE_F3s: return 185;
-    case NOTE_G3: return 196;
-    case NOTE_G3s: return 207;
-    case NOTE_A3: return 220;
-    case NOTE_A3s: return 233;
-    case NOTE_B3: return 246;
-    case NOTE_C4: return 261;
-    case NOTE_C4s: return 277;
-    case NOTE_D4: return 293;
-    case NOTE_D4s: return 311;
-    case NOTE_E4: return 329;
-    case NOTE_F4: return 349;
-    case NOTE_F4s: return 370;
-    case NOTE_G4: return 392;
-    case NOTE_G4s: return 415;
-    case NOTE_A4: return 440;
-    case NOTE_A4s: return 466;
-    case NOTE_B4: return 493;
-    case NOTE_C5: return 523;
-    case NOTE_C5s: return 554;
-    default: return -1;
+  switch (currentState) {
+    case IDLE:
+      if (nextState != IDLE) {
+        currentState = nextState;
+      }
+      break;
+    case PLAY:
+      NOTE note = noteMemory[currentTrack][noteIndex]; // get the current note for the current track
+      unsigned long currentTime = millis(); // get the current time
+      if(note == START) {
+        lastNoteTime = currentTime;
+        noteIndex++; // move to the next note
+      } else if(note == END) {
+        noteIndex = 0; // reset note index for the next playthrough
+        currentState = IDLE; // go back to idle after finishing the track
+      }
+      else if(note != IDLE && (currentTime - lastNoteTime) >= NOTE_DURATION) { // check if it's time to play the next note
+        playNoteOnSpeaker(note); // function to play the note on the speaker
+        lastNoteTime = currentTime; // update the last note time
+        noteIndex++; // move to the next note
+      }
+      if (nextState == IDLE) {
+        currentState = PLAY; // stay in play if nothing is pressed
+      } else {
+        currentState = nextState; // switch to the next state
+      }
+      break;
+    case PAUSED:
+      if (nextState == IDLE) {
+        currentState = PAUSED; // stay in paused if nothing is pressed
+      } else {
+        currentState = nextState; // switch to the next state
+      }
+      break;
+    case RESTART:
+      noteIndex = 0; // reset note index to restart the track
+      currentState = nextState; // switch to the next state
+      break;
+    case READ:
+      noteIndex = 0; // reset note index to start reading from the beginning of the track
+      int readsuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
+      if (readsuccess) {
+        noteIndex++; // move to the next note index for the next read
+      }
+      
+      if(nextState == IDLE) {
+        currentState = READ; // stay in read if nothing is pressed
+      } else {
+        currentState = nextState; // switch to the next state
+      }
+      break;
+    case SET_TRACK:
+      currentTrack = (currentTrack + 1) % MAX_TRACKS; // cycle through tracks
+      Serial.print("Current Track: ");
+      Serial.println(currentTrack);
+      if (nextState != SET_TRACK) {
+        currentState = nextState;
+      } else {
+        currentState = IDLE; // prevent staying in SET_TRACK state if the button is held down
+      }
+      break;
+    case READ:
   }
+
+  nextState = btnOutput(); // function to read button states and determine the next state
+
 }
 

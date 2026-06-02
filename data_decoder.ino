@@ -1,4 +1,4 @@
-void readData(){
+int readData(int currentTrack, int noteIndex) {
   static int clkSensIn = digitalRead(clkSensPin);
   static int codeSensIn = digitalRead(codeSensPin);
 
@@ -11,6 +11,7 @@ void readData(){
   static byte dataBuffer = 0;
   static int wordCounter = 0;
   static int startFlag = 0;
+
   if (sensClkPosEdge(clkDebounced)) {
     dataBuffer <<= 1;
     dataBuffer |= codeDebounced;
@@ -24,40 +25,28 @@ void readData(){
       if (dataBuffer == START) {
         startFlag = 1; 
         wordCounter = 0;
+        noteMemory[currentTrack][noteIndex] = START; // Store the START code in the note memory
       } 
-      // Once end code is detected, we can reset the start flag
-      else if (dataBuffer == END) {
-        if (startFlag) {
-          Serial.println("End of note code received.");
-          startFlag = 0;
-        }
-        wordCounter = 0;
-      }
-      else if (startFlag && wordCounter == codeWordLength - 1) {
+      else if (startFlag && wordCounter == CODE_WORD_LENGTH - 1) {
         NOTE note = static_cast<NOTE>(dataBuffer);
-        int frequency = NoteToFrequency(note);
-        if (frequency != -1) {
+        // Once end code is detected, we can reset the start flag
+        if (note == END) {
+          startFlag = 0;
+          wordCounter = 0;
+          Serial.println("Received END note code.");
+        } else if (note == IDLE) {
+          Serial.println("Received IDLE note code.");
+        } else {
           Serial.print("Received note: ");
           Serial.print(note);
-          Serial.print(" with frequency: ");
-          Serial.println(frequency);
-        } else {
-          Serial.println("Received invalid note code.");
-        }
-      } 
+        } 
+        noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
+      }
+      return 1; // Indicate successful read
     }
   }
-}
 
-int debounce(int input, byte buffer){
-  buffer <<= 1;
-  buffer |= input;
-  int debOut = input;
-  if(buffer == 0)
-    debOut = 0;
-  else if(buffer == 255)
-    debOut = 1;
-  return debOut;
+  return 0; // Indicate unsuccessful read
 }
 
 int sensClkPosEdge(int clkdebounced) {
