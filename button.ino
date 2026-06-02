@@ -18,16 +18,16 @@ STATE btnOutput(){
     debouncebtnSetTrack = debounce(digitalRead(btnSetTrackPin), debouncebtnSetTrack); 
 
     if (debouncebtnPlay) {
-        return PLAY;
+        return STATE_PLAY;
     } else if (debouncebtnPause) {
-        return PAUSED;
+        return STATE_PAUSED;
     } else if (debouncebtnRestart) {
-        return RESTART;
+        return STATE_RESTART;
     } else if (debouncebtnRead) {
-        return READ;
+        return STATE_READ;
     } else if (debouncebtnSetTrack) {
-        return SET_TRACK;
+        return STATE_SET_TRACK;
     } else {
-        return IDLE;
+        return STATE_IDLE;
     }
 }

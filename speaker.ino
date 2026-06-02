@@ -1,4 +1,4 @@
-void speakerPlayNote(NOTE note, int duration = NOTE_DURATION) {
+void speakerPlayNote(NOTE note, int duration) {
     int frequency = NoteToFrequency(note);
     if (frequency != -1) {
         tone(spkrPin, frequency, duration);

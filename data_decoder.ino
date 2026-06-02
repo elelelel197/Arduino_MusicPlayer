@@ -17,24 +17,24 @@ int readData(int currentTrack, int noteIndex) {
     dataBuffer |= codeDebounced;
     dataBuffer &= 0x3F; // Keep only the last 6 bits
     wordCounter++;
-    if (wordCounter >= codeWordLength) {
+    if (wordCounter >= CODE_WORD_LENGTH - 1) {
        wordCounter = 0; // Reset word counter for the next code word
     }
     if (parityCheck(dataBuffer)) {
       // Once start code is detected, we can process the note code
-      if (dataBuffer == START) {
+      if (dataBuffer == NOTE_START) {
         startFlag = 1; 
         wordCounter = 0;
-        noteMemory[currentTrack][noteIndex] = START; // Store the START code in the note memory
-      } 
+        noteMemory[currentTrack][noteIndex] = NOTE_START; // Store the START code in the note memory
+      }
       else if (startFlag && wordCounter == CODE_WORD_LENGTH - 1) {
         NOTE note = static_cast<NOTE>(dataBuffer);
         // Once end code is detected, we can reset the start flag
-        if (note == END) {
+        if (note == NOTE_END) {
           startFlag = 0;
           wordCounter = 0;
           Serial.println("Received END note code.");
-        } else if (note == IDLE) {
+        } else if (note == NOTE_IDLE) {
           Serial.println("Received IDLE note code.");
         } else {
           Serial.print("Received note: ");
