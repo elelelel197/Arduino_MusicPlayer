@@ -45,10 +45,10 @@
     }
   },
   {
-    "missing_include_h": "DIYables_4Digit7Segment_TM1637.h"
+    "missing_include_h": "SevenSegmentTM1637.h"
   },
   {
-    "added_include_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\DIYables_4Digit7Segment_TM1637\\src"
+    "added_include_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src"
   },
   {
     "compile": {
@@ -83,7 +83,7 @@
         "-DARDUINO_ARCH_AVR",
         "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
         "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
-        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\DIYables_4Digit7Segment_TM1637\\src",
+        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\sketch\\final_project_microprocessor.ino.cpp",
         "-o",
         "nul"
@@ -95,9 +95,9 @@
   },
   {
     "compile": {
-      "source_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\DIYables_4Digit7Segment_TM1637\\src\\DIYables_4Digit7Segment_TM1637.cpp",
-      "object_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\DIYables_4Digit7Segment_TM1637\\DIYables_4Digit7Segment_TM1637.cpp.o",
-      "depfile_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\DIYables_4Digit7Segment_TM1637\\DIYables_4Digit7Segment_TM1637.cpp.d"
+      "source_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentAsciiMap.cpp",
+      "object_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentAsciiMap.cpp.o",
+      "depfile_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentAsciiMap.cpp.d"
     },
     "compile_task": {
       "args": [
@@ -126,8 +126,137 @@
         "-DARDUINO_ARCH_AVR",
         "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
         "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
-        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\DIYables_4Digit7Segment_TM1637\\src",
-        "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\DIYables_4Digit7Segment_TM1637\\src\\DIYables_4Digit7Segment_TM1637.cpp",
+        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
+        "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentAsciiMap.cpp",
+        "-o",
+        "nul"
+      ]
+    }
+  },
+  {
+    "missing_include_h": ""
+  },
+  {
+    "compile": {
+      "source_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentExtended.cpp",
+      "object_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentExtended.cpp.o",
+      "depfile_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentExtended.cpp.d"
+    },
+    "compile_task": {
+      "args": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+        "-c",
+        "-g",
+        "-Os",
+        "-w",
+        "-std=gnu++11",
+        "-fpermissive",
+        "-fno-exceptions",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fno-threadsafe-statics",
+        "-Wno-error=narrowing",
+        "-flto",
+        "-w",
+        "-x",
+        "c++",
+        "-E",
+        "-CC",
+        "-mmcu=atmega328p",
+        "-DF_CPU=16000000L",
+        "-DARDUINO=10607",
+        "-DARDUINO_AVR_UNO",
+        "-DARDUINO_ARCH_AVR",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
+        "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentExtended.cpp",
+        "-o",
+        "nul"
+      ]
+    }
+  },
+  {
+    "missing_include_h": ""
+  },
+  {
+    "compile": {
+      "source_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentFun.cpp",
+      "object_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentFun.cpp.o",
+      "depfile_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentFun.cpp.d"
+    },
+    "compile_task": {
+      "args": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+        "-c",
+        "-g",
+        "-Os",
+        "-w",
+        "-std=gnu++11",
+        "-fpermissive",
+        "-fno-exceptions",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fno-threadsafe-statics",
+        "-Wno-error=narrowing",
+        "-flto",
+        "-w",
+        "-x",
+        "c++",
+        "-E",
+        "-CC",
+        "-mmcu=atmega328p",
+        "-DF_CPU=16000000L",
+        "-DARDUINO=10607",
+        "-DARDUINO_AVR_UNO",
+        "-DARDUINO_ARCH_AVR",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
+        "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentFun.cpp",
+        "-o",
+        "nul"
+      ]
+    }
+  },
+  {
+    "missing_include_h": ""
+  },
+  {
+    "compile": {
+      "source_path": "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentTM1637.cpp",
+      "object_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentTM1637.cpp.o",
+      "depfile_path": "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\libraries\\SevenSegmentTM1637\\SevenSegmentTM1637.cpp.d"
+    },
+    "compile_task": {
+      "args": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+        "-c",
+        "-g",
+        "-Os",
+        "-w",
+        "-std=gnu++11",
+        "-fpermissive",
+        "-fno-exceptions",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fno-threadsafe-statics",
+        "-Wno-error=narrowing",
+        "-flto",
+        "-w",
+        "-x",
+        "c++",
+        "-E",
+        "-CC",
+        "-mmcu=atmega328p",
+        "-DF_CPU=16000000L",
+        "-DARDUINO=10607",
+        "-DARDUINO_AVR_UNO",
+        "-DARDUINO_ARCH_AVR",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
+        "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentTM1637.cpp",
         "-o",
         "nul"
       ]

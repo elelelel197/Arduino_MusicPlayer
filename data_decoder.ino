@@ -1,16 +1,16 @@
-int readData(int currentTrack, int noteIndex) {
-  static int clkSensIn = digitalRead(clkSensPin);
-  static int codeSensIn = digitalRead(codeSensPin);
+uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
+  static uint8_t clkSensIn = digitalRead(clkSensPin);
+  static uint8_t codeSensIn = digitalRead(codeSensPin);
 
-  static byte clkSensBuffer = 0;
-  static byte codeSensBuffer = 0;
+  static uint8_t clkSensBuffer = 0;
+  static uint8_t codeSensBuffer = 0;
 
-  static int clkDebounced = debounce(clkSensIn, clkSensBuffer);
-  static int codeDebounced = debounce(codeSensIn, codeSensBuffer);
+  static uint8_t clkDebounced = debounce(clkSensIn, clkSensBuffer);
+  static uint8_t codeDebounced = debounce(codeSensIn, codeSensBuffer);
 
-  static byte dataBuffer = 0;
-  static int wordCounter = 0;
-  static int startFlag = 0;
+  static uint8_t dataBuffer = 0;
+  static uint8_t wordCounter = 0;
+  static uint8_t startFlag = 0;
 
   if (sensClkPosEdge(clkDebounced)) {
     dataBuffer <<= 1;
@@ -37,8 +37,8 @@ int readData(int currentTrack, int noteIndex) {
         } else if (note == NOTE_IDLE) {
           Serial.println("Received IDLE note code.");
         } else {
-          Serial.print("Received note: ");
-          Serial.print(note);
+          Serial.println("Received note: ");
+          Serial.println(note);
         } 
         noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
       }
@@ -49,16 +49,16 @@ int readData(int currentTrack, int noteIndex) {
   return 0; // Indicate unsuccessful read
 }
 
-int sensClkPosEdge(int clkdebounced) {
-  static int lastClk = LOW;
-  int posEdge = (lastClk == LOW) && (clkdebounced == HIGH);
+uint8_t sensClkPosEdge(uint8_t clkdebounced) {
+  static uint8_t lastClk = LOW;
+  uint8_t posEdge = (lastClk == LOW) && (clkdebounced == HIGH);
   lastClk = clkdebounced;
   return posEdge;
 }
 
-int parityCheck(byte data) {
-  int parity = 0;
-  for (int i = 0; i < 8; i++) {
+uint8_t parityCheck(uint8_t data) {
+  uint8_t parity = 0;
+  for (uint8_t i = 0; i < 8; i++) {
     parity ^= (data >> i) & 1;
   }
   return parity;

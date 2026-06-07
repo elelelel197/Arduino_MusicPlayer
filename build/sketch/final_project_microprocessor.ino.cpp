@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
-#include <DIYables_4Digit7Segment_TM1637.h>
+#include <SevenSegmentTM1637.h>
 
 #define clkSensPin 2  // sensor pin number for clock in paper code
 
@@ -25,6 +25,9 @@
 #define btnReadPin A3 // read button pin
 #define btnSetTrackPin A4 // set track button pin
 
+#define MTR_DIR true // motor direction constant for forward direction
+#define MTR_SPEED 200 // motor speed constant (0-255)
+
 #define CODE_WORD_LENGTH 6 // number of bits in the note code word
 
 #define NOTE_DURATION 500 // duration of each note in milliseconds
@@ -45,25 +48,37 @@ enum STATE {
 
 NOTE noteMemory[MAX_TRACKS][MAX_NOTES_PER_TRACK] = {{NOTE_IDLE}}; // 2D array to store the note codes for each player, initialized to IDLE
 
-#line 46 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+SevenSegmentTM1637 display(sevsegClkPin, sevsegDioPin); // initialize the 7-segment display object
+
+#line 51 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void setup();
-#line 71 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+#line 79 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void loop();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\button.ino"
 STATE btnOutput();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
-int readData(int currentTrack, int noteIndex);
+uint8_t readData(uint8_t currentTrack, uint8_t noteIndex);
 #line 52 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
-int sensClkPosEdge(int clkdebounced);
+uint8_t sensClkPosEdge(uint8_t clkdebounced);
 #line 59 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
-int parityCheck(byte data);
+uint8_t parityCheck(uint8_t data);
+#line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+void driveMtr1(bool direction, uint8_t speed);
+#line 12 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+void driveMtr2(bool direction, uint8_t speed);
+#line 23 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+void stopMtr1();
+#line 30 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+void stopMtr2();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\speaker.ino"
 void speakerPlayNote(NOTE note, int duration);
 #line 11 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\speaker.ino"
 int NoteToFrequency(NOTE note);
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\utility.ino"
-int debounce(int input, byte buffer);
-#line 46 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+bool debounce(bool input, uint8_t buffer);
+#line 12 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\utility.ino"
+bool onepulse(bool input);
+#line 51 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void setup() {
   Serial.begin(9600);
 
@@ -82,6 +97,9 @@ void setup() {
   pinMode(sevsegClkPin, OUTPUT);
   pinMode(sevsegDioPin, OUTPUT);
 
+  display.begin(); // initialize the 7-segment display
+  display.setBacklight(100);  // set the brightness to 100 %
+
   pinMode(btnPlayPin, INPUT_PULLUP);
   pinMode(btnPausePin, INPUT_PULLUP);
   pinMode(btnRestartPin, INPUT_PULLUP);
@@ -90,40 +108,56 @@ void setup() {
 }
 
 void loop() {
-  static int currentTrack = 0; // variable to keep track of the current track/player
-  static int noteIndex = 0; // variable to keep track of the current note index for the current track
+  static uint8_t currentTrack = 0; // variable to keep track of the current track/player
+  static uint8_t noteIndex = 0; // variable to keep track of the current note index for the current track
   static STATE currentState = STATE_IDLE; // variable to keep track of the current state of the system
   static STATE nextState = STATE_IDLE; // variable to keep track of the next state of the system
   static unsigned long lastNoteTime = 0; // variable to keep track of the time when the last note was played
 
+  // test readData function
+  // bool readsuccess = readData(currentTrack, noteIndex++);
+
   switch (currentState) {
     case STATE_IDLE:
+      display.clear(); // clear the 7-segment display
+      display.print("IDLE"); // display IDLE on the 7-segment display
+
       if (nextState != STATE_IDLE) {
         currentState = nextState;
       }
       break;
     case STATE_PLAY:
+      display.clear(); // clear the 7-segment display
+      display.print("PLAY"); // display PLAY on the 7-segment display
+
       NOTE note = noteMemory[currentTrack][noteIndex]; // get the current note for the current track
       unsigned long currentTime = millis(); // get the current time
       if(note == NOTE_START) {
         lastNoteTime = currentTime;
         noteIndex++; // move to the next note
-      } else if(note == NOTE_END) {
+      } 
+      else if(note == NOTE_END) {
         noteIndex = 0; // reset note index for the next playthrough
         currentState = STATE_IDLE; // go back to idle after finishing the track
-      }
-      else if(note != NOTE_IDLE && (currentTime - lastNoteTime) >= NOTE_DURATION) { // check if it's time to play the next note
+      } 
+      else if((currentTime - lastNoteTime) >= NOTE_DURATION) { // check if it's time to play the next note
         speakerPlayNote(note, NOTE_DURATION); // function to play the note on the speaker
         lastNoteTime = currentTime; // update the last note time
         noteIndex++; // move to the next note
       }
+
       if (nextState == STATE_IDLE) {
         currentState = STATE_PLAY; // stay in play if nothing is pressed
-      } else {
+      } 
+      else {
         currentState = nextState; // switch to the next state
       }
       break;
     case STATE_PAUSED:
+      display.clear(); // clear the 7-segment display
+      display.print("PAUS"); // display "PAUS" on the 7-segment display
+      display.blink(); // make the display blink to indicate paused state
+
       if (nextState == STATE_IDLE) {
         currentState = STATE_PAUSED; // stay in paused if nothing is pressed
       } else {
@@ -131,29 +165,44 @@ void loop() {
       }
       break;
     case STATE_RESTART:
+      display.clear(); // clear the 7-segment display
+      display.print("REST"); // display "REST" on the 7-segment display
+      delay(1000); // delay for a moment to show the restart message
+
       noteIndex = 0; // reset note index to restart the track
       currentState = nextState; // switch to the next state
       break;
     case STATE_READ:
+      display.clear(); // clear the 7-segment display
+      display.print("READ"); // display "READ" on the 7-segment display
+
       noteIndex = 0; // reset note index to start reading from the beginning of the track
-      int readsuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
-      if (readsuccess) {
+      uint8_t readSuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
+      if (readSuccess) {
         noteIndex++; // move to the next note index for the next read
       }
 
       if(nextState == STATE_IDLE) {
         currentState = STATE_READ; // stay in read if nothing is pressed
-      } else {
+      } 
+      else if(noteMemory[currentTrack][noteIndex] == NOTE_END) {
+        currentState = STATE_IDLE; // finish reading and go back to idle if the end note is reached
+      }
+      else {
         currentState = nextState; // switch to the next state
       }
       break;
     case STATE_SET_TRACK:
+      display.clear(); // clear the 7-segment display
+      String trackStr = "TR" + String(currentTrack + 1); // create a string to display the current track number (1-indexed)
+      display.print(trackStr); // display the current track number on the 7-segment display
+      delay(1000); // delay for a moment to show the track number
+
       currentTrack = (currentTrack + 1) % MAX_TRACKS; // cycle through tracks
-      Serial.print("Current Track: ");
-      Serial.println(currentTrack);
       if (nextState != STATE_SET_TRACK) {
         currentState = nextState;
-      } else {
+      } 
+      else {
         currentState = STATE_IDLE; // prevent staying in SET_TRACK state if the button is held down
       }
       break;
@@ -161,59 +210,72 @@ void loop() {
       currentState = STATE_IDLE; // default to idle state
   }
 
-  nextState = btnOutput(); // function to read button states and determine the next state
+  if(currentState != STATE_PLAY) {
+    noTone(spkrPin); // stop any currently playing tone
+  }
 
+  if(currentState == STATE_READ){
+    driveMtr1(MTR_DIR, MTR_SPEED); // function to drive motor 1 forward at the specified speed
+    driveMtr2(MTR_DIR, MTR_SPEED); 
+  }
+  else {
+    stopMtr1(); // function to stop motor 1
+    stopMtr2(); // function to stop motor 2
+  }
+
+  nextState = btnOutput(); // function to read button states and determine the next state
+  
 }
 
 
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\button.ino"
 STATE btnOutput(){
-    static int debouncebtnPlay = 0; // variable for debouncing the play button
-    static int debouncebtnPause = 0; // variable for debouncing the pause button
-    static int debouncebtnRestart = 0; // variable for debouncing the restart button
-    static int debouncebtnRead = 0; // variable for debouncing the read button
-    static int debouncebtnSetTrack = 0; // variable for debouncing the set track
+    static bool onePulsebtnPlay = 0; // variable for debouncing the play button
+    static bool onePulsebtnPause = 0; // variable for debouncing the pause button
+    static bool onePulsebtnRestart = 0; // variable for debouncing the restart button
+    static bool onePulsebtnRead = 0; // variable for debouncing the read button
+    static bool onePulsebtnSetTrack = 0; // variable for debouncing the set track
 
-    static byte btnPlayBuffer = 0; // buffer variable for the play button state
-    static byte btnPauseBuffer = 0; // buffer variable for the pause button state
-    static byte btnRestartBuffer = 0; // buffer variable for the restart button state
-    static byte btnReadBuffer = 0; // buffer variable for the read button state
-    static byte btnSetTrackBuffer = 0; // buffer variable for the set track button state
+    static uint8_t btnPlayBuffer = 0; // buffer variable for the play button state
+    static uint8_t btnPauseBuffer = 0; // buffer variable for the pause button state
+    static uint8_t btnRestartBuffer = 0; // buffer variable for the restart button state
+    static uint8_t btnReadBuffer = 0; // buffer variable for the read button state
+    static uint8_t btnSetTrackBuffer = 0; // buffer variable for the set track button state
 
-    debouncebtnPlay = debounce(digitalRead(btnPlayPin), debouncebtnPlay);
-    debouncebtnPause = debounce(digitalRead(btnPausePin), debouncebtnPause);
-    debouncebtnRestart = debounce(digitalRead(btnRestartPin), debouncebtnRestart);
-    debouncebtnRead = debounce(digitalRead(btnReadPin), debouncebtnRead);
-    debouncebtnSetTrack = debounce(digitalRead(btnSetTrackPin), debouncebtnSetTrack); 
+    onePulsebtnPlay = onepulse(debounce(digitalRead(btnPlayPin), btnPlayBuffer));
+    onePulsebtnPause = onepulse(debounce(digitalRead(btnPausePin), btnPauseBuffer));
+    onePulsebtnRestart = onepulse(debounce(digitalRead(btnRestartPin), btnRestartBuffer));
+    onePulsebtnRead = onepulse(debounce(digitalRead(btnReadPin), btnReadBuffer));
+    onePulsebtnSetTrack = onepulse(debounce(digitalRead(btnSetTrackPin), btnSetTrackBuffer));
 
-    if (debouncebtnPlay) {
+    if (onePulsebtnPlay) {
         return STATE_PLAY;
-    } else if (debouncebtnPause) {
+    } else if (onePulsebtnPause) {
         return STATE_PAUSED;
-    } else if (debouncebtnRestart) {
+    } else if (onePulsebtnRestart) {
         return STATE_RESTART;
-    } else if (debouncebtnRead) {
+    } else if (onePulsebtnRead) {
         return STATE_READ;
-    } else if (debouncebtnSetTrack) {
+    } else if (onePulsebtnSetTrack) {
         return STATE_SET_TRACK;
     } else {
         return STATE_IDLE;
     }
 }
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
-int readData(int currentTrack, int noteIndex) {
-  static int clkSensIn = digitalRead(clkSensPin);
-  static int codeSensIn = digitalRead(codeSensPin);
+uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
+  static uint8_t clkSensIn = digitalRead(clkSensPin);
+  static uint8_t codeSensIn = digitalRead(codeSensPin);
 
-  static byte clkSensBuffer = 0;
-  static byte codeSensBuffer = 0;
+  static uint8_t clkSensBuffer = 0;
+  static uint8_t codeSensBuffer = 0;
 
-  static int clkDebounced = debounce(clkSensIn, clkSensBuffer);
-  static int codeDebounced = debounce(codeSensIn, codeSensBuffer);
+  static uint8_t clkDebounced = debounce(clkSensIn, clkSensBuffer);
+  static uint8_t codeDebounced = debounce(codeSensIn, codeSensBuffer);
 
-  static byte dataBuffer = 0;
-  static int wordCounter = 0;
-  static int startFlag = 0;
+  static uint8_t dataBuffer = 0;
+  static uint8_t wordCounter = 0;
+  static uint8_t startFlag = 0;
 
   if (sensClkPosEdge(clkDebounced)) {
     dataBuffer <<= 1;
@@ -240,8 +302,8 @@ int readData(int currentTrack, int noteIndex) {
         } else if (note == NOTE_IDLE) {
           Serial.println("Received IDLE note code.");
         } else {
-          Serial.print("Received note: ");
-          Serial.print(note);
+          Serial.println("Received note: ");
+          Serial.println(note);
         } 
         noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
       }
@@ -252,19 +314,54 @@ int readData(int currentTrack, int noteIndex) {
   return 0; // Indicate unsuccessful read
 }
 
-int sensClkPosEdge(int clkdebounced) {
-  static int lastClk = LOW;
-  int posEdge = (lastClk == LOW) && (clkdebounced == HIGH);
+uint8_t sensClkPosEdge(uint8_t clkdebounced) {
+  static uint8_t lastClk = LOW;
+  uint8_t posEdge = (lastClk == LOW) && (clkdebounced == HIGH);
   lastClk = clkdebounced;
   return posEdge;
 }
 
-int parityCheck(byte data) {
-  int parity = 0;
-  for (int i = 0; i < 8; i++) {
+uint8_t parityCheck(uint8_t data) {
+  uint8_t parity = 0;
+  for (uint8_t i = 0; i < 8; i++) {
     parity ^= (data >> i) & 1;
   }
   return parity;
+}
+#line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+void driveMtr1(bool direction, uint8_t speed) {
+  if (direction) {
+    digitalWrite(mtr1fwPin, HIGH);
+    digitalWrite(mtr1bwPin, LOW);
+  } else {
+    digitalWrite(mtr1fwPin, LOW);
+    digitalWrite(mtr1bwPin, HIGH);
+  }
+  analogWrite(mtr1pwmPin, speed);
+}
+
+void driveMtr2(bool direction, uint8_t speed) {
+  if (direction) {
+    digitalWrite(mtr2fwPin, HIGH);
+    digitalWrite(mtr2bwPin, LOW);
+  } else {
+    digitalWrite(mtr2fwPin, LOW);
+    digitalWrite(mtr2bwPin, HIGH);
+  }
+  analogWrite(mtr2pwmPin, speed);
+}
+
+void stopMtr1() {
+  // coast: disable PWM (write 0) and set inputs low
+  analogWrite(mtr1pwmPin, 0);
+  digitalWrite(mtr1fwPin, LOW);
+  digitalWrite(mtr1bwPin, LOW);
+}
+
+void stopMtr2() {
+  analogWrite(mtr2pwmPin, 0);
+  digitalWrite(mtr2fwPin, LOW);
+  digitalWrite(mtr2bwPin, LOW);
 }
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\speaker.ino"
 void speakerPlayNote(NOTE note, int duration) {
@@ -314,13 +411,20 @@ int NoteToFrequency(NOTE note) {
 
 
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\utility.ino"
-int debounce(int input, byte buffer){
+bool debounce(bool input, uint8_t buffer){
   buffer <<= 1;
   buffer |= input;
-  int debOut = input;
+  bool debOut = input;
   if(buffer == 0)
     debOut = 0;
   else if(buffer == 255)
     debOut = 1;
   return debOut;
+}
+
+bool onepulse(bool input){
+  static bool lastInput = LOW;
+  bool pulseOut = (lastInput == LOW) && (input == HIGH);
+  lastInput = input;
+  return pulseOut;
 }

@@ -1,31 +1,31 @@
 STATE btnOutput(){
-    static int debouncebtnPlay = 0; // variable for debouncing the play button
-    static int debouncebtnPause = 0; // variable for debouncing the pause button
-    static int debouncebtnRestart = 0; // variable for debouncing the restart button
-    static int debouncebtnRead = 0; // variable for debouncing the read button
-    static int debouncebtnSetTrack = 0; // variable for debouncing the set track
+    static bool onePulsebtnPlay = 0; // variable for debouncing the play button
+    static bool onePulsebtnPause = 0; // variable for debouncing the pause button
+    static bool onePulsebtnRestart = 0; // variable for debouncing the restart button
+    static bool onePulsebtnRead = 0; // variable for debouncing the read button
+    static bool onePulsebtnSetTrack = 0; // variable for debouncing the set track
 
-    static byte btnPlayBuffer = 0; // buffer variable for the play button state
-    static byte btnPauseBuffer = 0; // buffer variable for the pause button state
-    static byte btnRestartBuffer = 0; // buffer variable for the restart button state
-    static byte btnReadBuffer = 0; // buffer variable for the read button state
-    static byte btnSetTrackBuffer = 0; // buffer variable for the set track button state
+    static uint8_t btnPlayBuffer = 0; // buffer variable for the play button state
+    static uint8_t btnPauseBuffer = 0; // buffer variable for the pause button state
+    static uint8_t btnRestartBuffer = 0; // buffer variable for the restart button state
+    static uint8_t btnReadBuffer = 0; // buffer variable for the read button state
+    static uint8_t btnSetTrackBuffer = 0; // buffer variable for the set track button state
 
-    debouncebtnPlay = debounce(digitalRead(btnPlayPin), debouncebtnPlay);
-    debouncebtnPause = debounce(digitalRead(btnPausePin), debouncebtnPause);
-    debouncebtnRestart = debounce(digitalRead(btnRestartPin), debouncebtnRestart);
-    debouncebtnRead = debounce(digitalRead(btnReadPin), debouncebtnRead);
-    debouncebtnSetTrack = debounce(digitalRead(btnSetTrackPin), debouncebtnSetTrack); 
+    onePulsebtnPlay = onepulse(debounce(digitalRead(btnPlayPin), btnPlayBuffer));
+    onePulsebtnPause = onepulse(debounce(digitalRead(btnPausePin), btnPauseBuffer));
+    onePulsebtnRestart = onepulse(debounce(digitalRead(btnRestartPin), btnRestartBuffer));
+    onePulsebtnRead = onepulse(debounce(digitalRead(btnReadPin), btnReadBuffer));
+    onePulsebtnSetTrack = onepulse(debounce(digitalRead(btnSetTrackPin), btnSetTrackBuffer));
 
-    if (debouncebtnPlay) {
+    if (onePulsebtnPlay) {
         return STATE_PLAY;
-    } else if (debouncebtnPause) {
+    } else if (onePulsebtnPause) {
         return STATE_PAUSED;
-    } else if (debouncebtnRestart) {
+    } else if (onePulsebtnRestart) {
         return STATE_RESTART;
-    } else if (debouncebtnRead) {
+    } else if (onePulsebtnRead) {
         return STATE_READ;
-    } else if (debouncebtnSetTrack) {
+    } else if (onePulsebtnSetTrack) {
         return STATE_SET_TRACK;
     } else {
         return STATE_IDLE;
