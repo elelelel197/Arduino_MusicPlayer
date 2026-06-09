@@ -1,6 +1,6 @@
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\.vscode\\arduino.json"
 {
-  "port": "COM4",
+  "port": "COM5",
   "configuration": "",
   "output": "build",
   "board": "arduino:avr:uno",
@@ -10,11 +10,14 @@
   "configurationRequired": false,
   "compile_profile": "",
   "monitorPortSettings": {
-    "port": "COM4",
-    "baudRate": 115200,
-    "lineEnding": "\r\n",
-    "dataBits": 8,
-    "parity": "none",
-    "stopBits": "one"
+    "settings": {
+      "port": "COM5",
+      "baudRate": 9600,
+      "lineEnding": "\r\n",
+      "dataBits": 8,
+      "parity": "none",
+      "stopBits": "one"
+    },
+    "profile_name": ""
   }
 }
