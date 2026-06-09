@@ -30,22 +30,21 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
     Serial.print("Data buffer: ");
     Serial.println(dataBuffer, BIN);
     wordCounter++;
-    if (wordCounter >= CODE_WORD_LENGTH) {
-       wordCounter = 0; // Reset word counter for the next code word
-    }
     if (parityCheck(dataBuffer)) {
       // Once start code is detected, we can process the note code
       uint8_t noteCode = dataBuffer;
       noteCode >>= 1; // Shift right to get bits 1..7 as the note code
       Serial.print("Note code: ");
       Serial.println(noteCode, BIN);
+      Serial.print("wordCounter: ");
+      Serial.println(wordCounter);
       if (noteCode == NOTE_START) {
         Serial.println("Received START note code.");
         startFlag = 1;
         wordCounter = 0;
         noteMemory[currentTrack][noteIndex] = NOTE_START; // Store the START code in the note memory
       }
-      else if (startFlag && wordCounter == CODE_WORD_LENGTH) {
+      else if (startFlag && (wordCounter == CODE_WORD_LENGTH)) {
         NOTE note = static_cast<NOTE>(noteCode); // Convert the note code to the NOTE enum
         // Once end code is detected, we can reset the start flag
         if (note == NOTE_END) {
@@ -61,6 +60,9 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
         noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
       }
       return 1; // Indicate successful read
+    }
+    if (wordCounter >= CODE_WORD_LENGTH) {
+       wordCounter = 0; // Reset word counter for the next code word
     }
   }
 
