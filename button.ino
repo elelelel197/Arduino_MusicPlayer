@@ -1,27 +1,34 @@
 STATE btnOutput(){
-    bool onePulseBtnPlay = 0; // variable for debouncing the play button
-    bool onePulseBtnPause = 0; // variable for debouncing the pause button
-    bool onePulseBtnRestart = 0; // variable for debouncing the restart button
-    bool onePulseBtnRead = 0; // variable for debouncing the read button
-    bool onePulseBtnSetTrack = 0; // variable for debouncing the set track
+    static bool lastDebBtnPlay = 0; // variable to store the last state of the play button for deb
+    static bool lastDebBtnPause = 0;
+    static bool lastDebBtnRestart = 0;
+    static bool lastDebBtnRead = 0;
+    static bool lastDebBtnSetTrack = 0;
 
-    static bool lastBtnPlay = 0; // variable to store the last state of the play button
-    static bool lastBtnPause = 0;
-    static bool lastBtnRestart = 0;
-    static bool lastBtnRead = 0;
-    static bool lastBtnSetTrack = 0;
+    static bool lastOpBtnPlay = 0; // variable to store the last state of the play button for Op
+    static bool lastOpBtnPause = 0;
+    static bool lastOpBtnRestart = 0;
+    static bool lastOpBtnRead = 0;
+    static bool lastOpBtnSetTrack = 0;
 
-    static uint8_t btnPlayBuffer = 0; // buffer variable for the play button state
-    static uint8_t btnPauseBuffer = 0; // buffer variable for the pause button state
-    static uint8_t btnRestartBuffer = 0; // buffer variable for the restart button state
-    static uint8_t btnReadBuffer = 0; // buffer variable for the read button state
-    static uint8_t btnSetTrackBuffer = 0; // buffer variable for the set track button state
+    static uint8_t btnPlayBuffer = 0; // buffer variable for button states
+    static uint8_t btnPauseBuffer = 0; 
+    static uint8_t btnRestartBuffer = 0; 
+    static uint8_t btnReadBuffer = 0; 
+    static uint8_t btnSetTrackBuffer = 0; 
 
-    onePulseBtnPlay = onepulse(debounce(digitalRead(btnPlayPin), btnPlayBuffer, lastBtnPlay));
-    onePulseBtnPause = onepulse(debounce(digitalRead(btnPausePin), btnPauseBuffer, lastBtnPause));
-    onePulseBtnRestart = onepulse(debounce(digitalRead(btnRestartPin), btnRestartBuffer, lastBtnRestart));
-    onePulseBtnRead = onepulse(debounce(digitalRead(btnReadPin), btnReadBuffer, lastBtnRead));
-    onePulseBtnSetTrack = onepulse(debounce(digitalRead(btnSetTrackPin), btnSetTrackBuffer, lastBtnSetTrack));
+    bool onePulseBtnPlay = onepulse(debounce(digitalRead(btnPlayPin), btnPlayBuffer, lastDebBtnPlay), lastOpBtnPlay);
+    bool onePulseBtnPause = onepulse(debounce(digitalRead(btnPausePin), btnPauseBuffer, lastDebBtnPause), lastOpBtnPause);
+    bool onePulseBtnRestart = onepulse(debounce(digitalRead(btnRestartPin), btnRestartBuffer, lastDebBtnRestart), lastOpBtnRestart);
+    bool onePulseBtnRead = onepulse(debounce(digitalRead(btnReadPin), btnReadBuffer, lastDebBtnRead), lastOpBtnRead);
+    bool onePulseBtnSetTrack = onepulse(debounce(digitalRead(btnSetTrackPin), btnSetTrackBuffer, lastDebBtnSetTrack), lastOpBtnSetTrack);
+
+    Serial.print("Button input:");
+    Serial.print(onePulseBtnPlay);
+    Serial.print(onePulseBtnPause);
+    Serial.print(onePulseBtnRestart);
+    Serial.print(onePulseBtnRead);
+    Serial.println(onePulseBtnSetTrack);
 
     if (onePulseBtnPlay) {
         return STATE_PLAY;

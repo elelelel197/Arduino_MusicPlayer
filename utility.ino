@@ -20,9 +20,8 @@ bool debounce(uint8_t input, uint8_t &buffer, bool &debouncedOut) {
   return debouncedOut;
 }
 
-bool onepulse(bool input){
-  static bool lastInput = LOW;
-  bool pulseOut = (lastInput == LOW) && (input == HIGH);
+bool onepulse(bool input, bool &lastInput){
+  bool pulseOut = (lastInput == HIGH) && (input == LOW);
   lastInput = input;
   return pulseOut;
 }
