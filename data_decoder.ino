@@ -3,8 +3,10 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
   uint8_t codeSensIn = digitalRead(codeSensPin);
 
   // For debugging: print the raw sensor inputs
-  // Serial.print("Raw Clock: ");
-  // Serial.println(clkSensIn);
+  Serial.print("Raw Clock: ");
+  Serial.println(clkSensIn);
+  Serial.print("Raw Data");
+  Serial.println(codeSensIn);
 
   static uint8_t clkSensBuffer = 0;
   static uint8_t codeSensBuffer = 0;
@@ -39,7 +41,7 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
       // Serial.println(noteCode, BIN);
       // Serial.print("wordCounter: ");
       // Serial.println(wordCounter);
-      if (noteCode == NOTE_START) {
+      if (noteCode == NOTE_START && !startFlag) {
         Serial.println("Received START note code.");
         startFlag = 1;
         readSucFlag = 1;

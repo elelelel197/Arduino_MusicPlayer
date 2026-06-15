@@ -1,6 +1,6 @@
 // 4-sample debounce: state changes only after 0b0000 -> 0 or 0b1111 -> 1
 bool debounce(uint8_t input, uint8_t &buffer, bool &debouncedOut) {
-  const uint8_t WINDOW_MASK = 0x0F; // keep last 2 samples
+  const uint8_t WINDOW_MASK = 0x03; // keep last 3 samples
   // ensure input is 0 or 1
   input = (input ? 1 : 0);
 
