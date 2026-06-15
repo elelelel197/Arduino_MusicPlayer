@@ -4,9 +4,9 @@
 
 #define codeSensPin 5  // sensor pin number for note code in paper code
 
-#define mtr1fwPin 11  // motor 1 forward pin
+#define mtr1fwPin 13  // motor 1 forward pin
 #define mtr1bwPin 12  // motor 1 backward pin
-#define mtr1pwmPin 13 // motor 1 PWM pin
+#define mtr1pwmPin 11 // motor 1 PWM pin
 
 #define mtr2fwPin 7 // motor 2 forward pin
 #define mtr2bwPin 8 // motor 2 backward pin
@@ -23,7 +23,8 @@
 #define btnReadPin A3 // read button pin
 #define btnSetTrackPin A4 // set track button pin
 
-#define MTR_SPEED 100 // motor speed constant (0-255)
+#define MTR_SPEED_FRONT 75 // motor speed constant (0-255)
+#define MTR_SPEED_BACK 50
 
 #define CODE_WORD_LENGTH 6 // number of bits in the note code word
 
@@ -94,8 +95,8 @@ void loop() {
   //   noteIndex++; // move to the next note index for the next read
   //   }
 
-  // Serial.print("note: ");
-  // Serial.println(noteMemory[currentTrack][noteIndex]);
+  // Serial.print("note index: ");
+  // Serial.println(noteIndex);
 
   btnRequest = btnOutput();
   // update nextState if request is drawn
@@ -104,12 +105,21 @@ void loop() {
     if(currentState == STATE_PLAY && btnRequest == STATE_PLAY){
       nextState = STATE_PAUSED;
     }
+    else if(currentState == STATE_REV_MTR && btnRequest == STATE_REV_MTR){
+      nextState = STATE_IDLE;
+    }
+    else if(currentState == STATE_READ && btnRequest == STATE_READ){
+      nextState = STATE_IDLE;
+    }
     else {
       nextState = btnRequest;
     }
     // If read is interrupted, put a end note in the back
     if(currentState == STATE_READ && noteMemory[currentTrack][noteIndex] != NOTE_END){
       noteMemory[currentTrack][noteIndex + 1] = NOTE_END; 
+    }
+    if(currentState == STATE_READ && nextState != STATE_READ){
+      noteIndex = 0;
     }
   }
   // change nextState to idle after end note is reached
@@ -169,12 +179,11 @@ void loop() {
   
   } 
   else if (currentState == STATE_READ) {
-    Serial.println("read");
+    // Serial.println("read");
   
     display.clear(); // clear the 7-segment display
     display.print("READ"); // display "READ" on the 7-segment display
   
-    noteIndex = 0; // reset note index to start reading from the beginning of the track
     uint8_t readSuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
     if (readSuccess) {
       noteIndex++; // move to the next note index for the next read
@@ -208,12 +217,12 @@ void loop() {
     noTone(spkrPin);
 
   if(currentState == STATE_READ){
-    driveMtr1(true, MTR_SPEED); 
-    driveMtr2(true, MTR_SPEED); 
+    driveMtr1(true, MTR_SPEED_FRONT); 
+    driveMtr2(true, MTR_SPEED_BACK); 
   }
   else if (currentState == STATE_REV_MTR){
-    driveMtr1(false, MTR_SPEED); 
-    driveMtr2(false, MTR_SPEED); 
+    driveMtr1(false, MTR_SPEED_BACK); 
+    driveMtr2(false, MTR_SPEED_FRONT); 
   }
   else {
     stopMtr1(); // function to stop motor 1

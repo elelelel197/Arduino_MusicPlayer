@@ -6,9 +6,9 @@
 
 #define codeSensPin 5  // sensor pin number for note code in paper code
 
-#define mtr1fwPin 11  // motor 1 forward pin
+#define mtr1fwPin 13  // motor 1 forward pin
 #define mtr1bwPin 12  // motor 1 backward pin
-#define mtr1pwmPin 13 // motor 1 PWM pin
+#define mtr1pwmPin 11 // motor 1 PWM pin
 
 #define mtr2fwPin 7 // motor 2 forward pin
 #define mtr2bwPin 8 // motor 2 backward pin
@@ -25,7 +25,8 @@
 #define btnReadPin A3 // read button pin
 #define btnSetTrackPin A4 // set track button pin
 
-#define MTR_SPEED 100 // motor speed constant (0-255)
+#define MTR_SPEED_FRONT 75 // motor speed constant (0-255)
+#define MTR_SPEED_BACK 50
 
 #define CODE_WORD_LENGTH 6 // number of bits in the note code word
 
@@ -49,25 +50,25 @@ NOTE noteMemory[MAX_TRACKS][MAX_NOTES_PER_TRACK] = {{NOTE_END}, {NOTE_END}, {NOT
 
 SevenSegmentTM1637 display(sevsegClkPin, sevsegDioPin); // initialize the 7-segment display object
 
-#line 50 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+#line 51 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void setup();
-#line 78 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+#line 79 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void loop();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\button.ino"
 STATE btnOutput();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
 uint8_t readData(uint8_t currentTrack, uint8_t noteIndex);
-#line 72 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
+#line 77 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
 bool sensClkPosEdge(bool clkdebounced);
-#line 79 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
+#line 84 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\data_decoder.ino"
 uint8_t parityCheck(uint8_t data);
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
 void driveMtr1(bool direction, uint8_t speed);
-#line 12 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+#line 13 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
 void driveMtr2(bool direction, uint8_t speed);
-#line 23 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+#line 25 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
 void stopMtr1();
-#line 30 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
+#line 32 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
 void stopMtr2();
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\speaker.ino"
 void speakerPlayNote(NOTE note, int duration);
@@ -77,7 +78,7 @@ int NoteToFrequency(NOTE note);
 bool debounce(uint8_t input, uint8_t &buffer, bool &debouncedOut);
 #line 23 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\utility.ino"
 bool onepulse(bool input, bool &lastInput);
-#line 50 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
+#line 51 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\final_project_microprocessor.ino"
 void setup() {
   Serial.begin(9600);
 
@@ -125,8 +126,8 @@ void loop() {
   //   noteIndex++; // move to the next note index for the next read
   //   }
 
-  // Serial.print("note: ");
-  // Serial.println(noteMemory[currentTrack][noteIndex]);
+  // Serial.print("note index: ");
+  // Serial.println(noteIndex);
 
   btnRequest = btnOutput();
   // update nextState if request is drawn
@@ -135,12 +136,21 @@ void loop() {
     if(currentState == STATE_PLAY && btnRequest == STATE_PLAY){
       nextState = STATE_PAUSED;
     }
+    else if(currentState == STATE_REV_MTR && btnRequest == STATE_REV_MTR){
+      nextState = STATE_IDLE;
+    }
+    else if(currentState == STATE_READ && btnRequest == STATE_READ){
+      nextState = STATE_IDLE;
+    }
     else {
       nextState = btnRequest;
     }
     // If read is interrupted, put a end note in the back
     if(currentState == STATE_READ && noteMemory[currentTrack][noteIndex] != NOTE_END){
       noteMemory[currentTrack][noteIndex + 1] = NOTE_END; 
+    }
+    if(currentState == STATE_READ && nextState != STATE_READ){
+      noteIndex = 0;
     }
   }
   // change nextState to idle after end note is reached
@@ -200,12 +210,11 @@ void loop() {
   
   } 
   else if (currentState == STATE_READ) {
-    Serial.println("read");
+    // Serial.println("read");
   
     display.clear(); // clear the 7-segment display
     display.print("READ"); // display "READ" on the 7-segment display
   
-    noteIndex = 0; // reset note index to start reading from the beginning of the track
     uint8_t readSuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
     if (readSuccess) {
       noteIndex++; // move to the next note index for the next read
@@ -239,12 +248,12 @@ void loop() {
     noTone(spkrPin);
 
   if(currentState == STATE_READ){
-    driveMtr1(true, MTR_SPEED); 
-    driveMtr2(true, MTR_SPEED); 
+    driveMtr1(true, MTR_SPEED_FRONT); 
+    driveMtr2(true, MTR_SPEED_BACK); 
   }
   else if (currentState == STATE_REV_MTR){
-    driveMtr1(false, MTR_SPEED); 
-    driveMtr2(false, MTR_SPEED); 
+    driveMtr1(false, MTR_SPEED_BACK); 
+    driveMtr2(false, MTR_SPEED_FRONT); 
   }
   else {
     stopMtr1(); // function to stop motor 1
@@ -326,6 +335,7 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
   static uint8_t dataBuffer = 0;
   static uint8_t wordCounter = 0;
   static uint8_t startFlag = 0;
+  bool readSucFlag = 0;
 
   if (sensClkPosEdge(clkDebounced)) {
     dataBuffer <<= 1;
@@ -338,13 +348,14 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
       // Once start code is detected, we can process the note code
       uint8_t noteCode = dataBuffer;
       noteCode >>= 1; // Shift right to get bits 1..7 as the note code
-      Serial.print("Note code: ");
-      Serial.println(noteCode, BIN);
+      // Serial.print("Note code: ");
+      // Serial.println(noteCode, BIN);
       // Serial.print("wordCounter: ");
       // Serial.println(wordCounter);
       if (noteCode == NOTE_START) {
         Serial.println("Received START note code.");
         startFlag = 1;
+        readSucFlag = 1;
         wordCounter = 0;
         noteMemory[currentTrack][noteIndex] = NOTE_START; // Store the START code in the note memory
       }
@@ -358,19 +369,22 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
         } else if (note == NOTE_IDLE) {
           Serial.println("Received IDLE note code.");
         } else {
-          Serial.println("Received note: ");
+          Serial.print("Received note: ");
           Serial.println(note);
         } 
         noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
+        
+        readSucFlag = 1;
       }
-      return 1; // Indicate successful read
     }
-    if (wordCounter >= CODE_WORD_LENGTH) {
-       wordCounter = 0; // Reset word counter for the next code word
-    }
+    if (wordCounter >= CODE_WORD_LENGTH) 
+      wordCounter = 0; // Reset word counter for the next code word
   }
 
-  return 0; // Indicate unsuccessful read
+  if (readSucFlag)
+    return 1;
+  else
+    return 0;
 }
 
 bool sensClkPosEdge(bool clkdebounced) {
@@ -389,6 +403,7 @@ uint8_t parityCheck(uint8_t data) {
 }
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\motor.ino"
 void driveMtr1(bool direction, uint8_t speed) {
+  // Serial.println("mtr1active");
   if (direction) {
     digitalWrite(mtr1fwPin, HIGH);
     digitalWrite(mtr1bwPin, LOW);
@@ -400,6 +415,7 @@ void driveMtr1(bool direction, uint8_t speed) {
 }
 
 void driveMtr2(bool direction, uint8_t speed) {
+  // Serial.println("mtr2active");
   if (direction) {
     digitalWrite(mtr2fwPin, HIGH);
     digitalWrite(mtr2bwPin, LOW);
@@ -472,7 +488,7 @@ int NoteToFrequency(NOTE note) {
 #line 1 "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\utility.ino"
 // 4-sample debounce: state changes only after 0b0000 -> 0 or 0b1111 -> 1
 bool debounce(uint8_t input, uint8_t &buffer, bool &debouncedOut) {
-  const uint8_t WINDOW_MASK = 0x0F; // keep last 4 samples
+  const uint8_t WINDOW_MASK = 0x0F; // keep last 2 samples
   // ensure input is 0 or 1
   input = (input ? 1 : 0);
 

@@ -1,4 +1,5 @@
 void driveMtr1(bool direction, uint8_t speed) {
+  // Serial.println("mtr1active");
   if (direction) {
     digitalWrite(mtr1fwPin, HIGH);
     digitalWrite(mtr1bwPin, LOW);
@@ -10,6 +11,7 @@ void driveMtr1(bool direction, uint8_t speed) {
 }
 
 void driveMtr2(bool direction, uint8_t speed) {
+  // Serial.println("mtr2active");
   if (direction) {
     digitalWrite(mtr2fwPin, HIGH);
     digitalWrite(mtr2bwPin, LOW);

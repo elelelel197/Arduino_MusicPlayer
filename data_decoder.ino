@@ -22,6 +22,7 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
   static uint8_t dataBuffer = 0;
   static uint8_t wordCounter = 0;
   static uint8_t startFlag = 0;
+  bool readSucFlag = 0;
 
   if (sensClkPosEdge(clkDebounced)) {
     dataBuffer <<= 1;
@@ -34,13 +35,14 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
       // Once start code is detected, we can process the note code
       uint8_t noteCode = dataBuffer;
       noteCode >>= 1; // Shift right to get bits 1..7 as the note code
-      Serial.print("Note code: ");
-      Serial.println(noteCode, BIN);
+      // Serial.print("Note code: ");
+      // Serial.println(noteCode, BIN);
       // Serial.print("wordCounter: ");
       // Serial.println(wordCounter);
       if (noteCode == NOTE_START) {
         Serial.println("Received START note code.");
         startFlag = 1;
+        readSucFlag = 1;
         wordCounter = 0;
         noteMemory[currentTrack][noteIndex] = NOTE_START; // Store the START code in the note memory
       }
@@ -54,19 +56,22 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
         } else if (note == NOTE_IDLE) {
           Serial.println("Received IDLE note code.");
         } else {
-          Serial.println("Received note: ");
+          Serial.print("Received note: ");
           Serial.println(note);
         } 
         noteMemory[currentTrack][noteIndex] = note; // Store the note in the note memory
+        
+        readSucFlag = 1;
       }
-      return 1; // Indicate successful read
     }
-    if (wordCounter >= CODE_WORD_LENGTH) {
-       wordCounter = 0; // Reset word counter for the next code word
-    }
+    if (wordCounter >= CODE_WORD_LENGTH) 
+      wordCounter = 0; // Reset word counter for the next code word
   }
 
-  return 0; // Indicate unsuccessful read
+  if (readSucFlag)
+    return 1;
+  else
+    return 0;
 }
 
 bool sensClkPosEdge(bool clkdebounced) {
