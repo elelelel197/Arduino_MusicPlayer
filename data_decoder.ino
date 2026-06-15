@@ -34,8 +34,8 @@ uint8_t readData(uint8_t currentTrack, uint8_t noteIndex) {
       // Once start code is detected, we can process the note code
       uint8_t noteCode = dataBuffer;
       noteCode >>= 1; // Shift right to get bits 1..7 as the note code
-      // Serial.print("Note code: ");
-      // Serial.println(noteCode, BIN);
+      Serial.print("Note code: ");
+      Serial.println(noteCode, BIN);
       // Serial.print("wordCounter: ");
       // Serial.println(wordCounter);
       if (noteCode == NOTE_START) {
