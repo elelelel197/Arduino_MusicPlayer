@@ -12,7 +12,7 @@
   "monitorPortSettings": {
     "settings": {
       "port": "COM5",
-      "baudRate": 9600,
+      "baudRate": 115200,
       "lineEnding": "\r\n",
       "dataBits": 8,
       "parity": "none",

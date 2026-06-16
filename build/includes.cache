@@ -1,9 +1,9 @@
 [
   {
-    "added_include_path": "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino"
+    "added_include_path": "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino"
   },
   {
-    "added_include_path": "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard"
+    "added_include_path": "C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard"
   },
   {
     "compile": {
@@ -36,8 +36,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\sketch\\final_project_microprocessor.ino.cpp",
         "-o",
         "nul"
@@ -81,8 +81,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Desktop\\final_project_microprocessor\\build\\sketch\\final_project_microprocessor.ino.cpp",
         "-o",
@@ -124,8 +124,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentAsciiMap.cpp",
         "-o",
@@ -167,8 +167,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentExtended.cpp",
         "-o",
@@ -210,8 +210,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentFun.cpp",
         "-o",
@@ -253,8 +253,8 @@
         "-DARDUINO=10607",
         "-DARDUINO_AVR_UNO",
         "-DARDUINO_ARCH_AVR",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino",
-        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\standard",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\cores\\arduino",
+        "-IC:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.8\\variants\\standard",
         "-IC:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src",
         "C:\\Users\\Administrator\\Documents\\Arduino\\libraries\\SevenSegmentTM1637\\src\\SevenSegmentTM1637.cpp",
         "-o",

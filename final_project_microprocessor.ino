@@ -23,15 +23,15 @@
 #define btnReadPin A3 // read button pin
 #define btnSetTrackPin A4 // set track button pin
 
-#define MTR_SPEED_FRONT 75 // motor speed constant (0-255)
-#define MTR_SPEED_BACK 50
+#define MTR_SPEED_FRONT 80 // motor speed constant (0-255)
+#define MTR_SPEED_BACK 55
 
 #define CODE_WORD_LENGTH 6 // number of bits in the note code word
 
 #define NOTE_DURATION 500 // duration of each note in milliseconds
 
-#define MAX_TRACKS 5 // maximum number of tracks/players
-#define MAX_NOTES_PER_TRACK 100 // maximum number of notes per track
+#define MAX_TRACKS 3 // maximum number of tracks/players
+#define MAX_NOTES_PER_TRACK 50 // maximum number of notes per track
 
 enum NOTE {
   NOTE_IDLE, NOTE_START, NOTE_END, 
@@ -44,12 +44,12 @@ enum STATE {
   STATE_IDLE, STATE_PLAY, STATE_PAUSED, STATE_RESTART, STATE_READ, STATE_SET_TRACK, STATE_REV_MTR
 };
 
-NOTE noteMemory[MAX_TRACKS][MAX_NOTES_PER_TRACK] = {{NOTE_END}, {NOTE_END}, {NOTE_END}, {NOTE_END}, {NOTE_END}}; // 2D array to store the note codes for each player, initialized to IDLE
+NOTE noteMemory[MAX_TRACKS][MAX_NOTES_PER_TRACK] = {{NOTE_END}, {NOTE_END}, {NOTE_END}}; // 2D array to store the note codes for each player, initialized to IDLE
 
 SevenSegmentTM1637 display(sevsegClkPin, sevsegDioPin); // initialize the 7-segment display object
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(250000);
 
   pinMode(clkSensPin, INPUT);
   pinMode(codeSensPin, INPUT);
@@ -68,6 +68,7 @@ void setup() {
 
   display.begin(); // initialize the 7-segment display
   display.setBacklight(100);  // set the brightness to 100 %
+  display.print("ON");
 
   pinMode(btnPlayPin, INPUT_PULLUP);
   pinMode(btnRevMtrPin, INPUT_PULLUP);
@@ -84,16 +85,7 @@ void loop() {
   static STATE btnRequest = STATE_IDLE; // variable to receive btnOutput func
   static unsigned long lastNoteTime = 0; // variable to keep track of the time when the last note was played
   static bool motorDir = true; // spin direction of motors
-
-  // test readData function
-  // display.clear(); // clear the 7-segment display
-  // display.print("READ"); // display "READ" on the 7-segment display
-
-  // noteIndex = 0; // reset note index to start reading from the beginning of the track
-  // uint8_t readSuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
-  // if (readSuccess) {
-  //   noteIndex++; // move to the next note index for the next read
-  //   }
+  static bool readStartFlag = false;
 
   // Serial.print("note index: ");
   // Serial.println(noteIndex);
@@ -131,20 +123,44 @@ void loop() {
     nextState = STATE_IDLE;
   }
 
+  if(currentState != nextState){
+    display.clear();
+    noTone(spkrPin);
+    stopMtr1(); // function to stop motor 1
+    stopMtr2(); // function to stop motor 2
+    readStartFlag = false;
+
+    if(nextState == STATE_IDLE){
+      display.print("IDLE");
+    }
+    else if(nextState == STATE_PLAY){
+      display.print("PLAY");
+    }
+    else if(nextState == STATE_PAUSED){
+      display.print("PAUS");
+    }
+    else if(nextState == STATE_RESTART){
+      display.print("REST");
+    }
+    else if(nextState == STATE_READ){
+      display.print("READ");
+    }
+    else if(nextState == STATE_SET_TRACK){
+      String trackStr = "TR" + String(currentTrack + 1); // create a string to display the current track number (1-indexed)
+      display.print(trackStr); // display the current track number on the 7-segment display
+    }
+    else if(nextState == STATE_REV_MTR){
+      display.print("REVM");
+    }
+  }
+  
   currentState = nextState;
 
   if (currentState == STATE_IDLE) {
-    Serial.println("idle");
-  
-    display.clear(); // clear the 7-segment display
-    display.print("IDLE"); // display IDLE on the 7-segment display
-  
+    // Serial.println("idle");
   } 
   else if (currentState == STATE_PLAY) {
-    Serial.println("play");
-  
-    display.clear(); // clear the 7-segment display
-    display.print("PLAY"); // display PLAY on the 7-segment display
+    // Serial.println("play");
   
     NOTE note = noteMemory[currentTrack][noteIndex]; // get the current note for the current track
     unsigned long currentTime = millis(); // get the current time
@@ -158,21 +174,13 @@ void loop() {
       lastNoteTime = currentTime; // update the last note time
       noteIndex++; // move to the next note
     }
-  
   } 
   else if (currentState == STATE_PAUSED) {
-    Serial.println("pause");
-  
-    display.clear(); // clear the 7-segment display
-    display.print("PAUS"); // display "PAUS" on the 7-segment display
-    // display.blink(); // make the display blink to indicate paused state
-  
+    // Serial.println("pause");
   } 
   else if (currentState == STATE_RESTART) {
-    Serial.println("restart");
+    // Serial.println("restart");
   
-    display.clear(); // clear the 7-segment display
-    display.print("REST"); // display "REST" on the 7-segment display
     delay(1000); // delay for a moment to show the restart message
   
     noteIndex = 0; // reset note index to restart the track
@@ -180,21 +188,18 @@ void loop() {
   } 
   else if (currentState == STATE_READ) {
     // Serial.println("read");
-  
-    display.clear(); // clear the 7-segment display
-    display.print("READ"); // display "READ" on the 7-segment display
-  
-    uint8_t readSuccess = readData(currentTrack, noteIndex); // function to read data from the sensors and store it in the note memory
-    if (readSuccess) {
+    driveMtr1(true, MTR_SPEED_FRONT); 
+    driveMtr2(true, MTR_SPEED_BACK); 
+
+    uint8_t noteReceived = readData(readStartFlag); // function to read data from the sensors and store it in the note memory
+    if (noteReceived != 0xFF) {
+      noteMemory[currentTrack][noteIndex] = noteReceived;
       noteIndex++; // move to the next note index for the next read
     }
   } 
   else if (currentState == STATE_SET_TRACK) {
-    Serial.println("set track");
+    // Serial.println("set track");
 
-    display.clear(); // clear the 7-segment display
-    String trackStr = "TR" + String(currentTrack + 1); // create a string to display the current track number (1-indexed)
-    display.print(trackStr); // display the current track number on the 7-segment display
     delay(1000); // delay for a moment to show the track number
 
     currentTrack = (currentTrack + 1) % MAX_TRACKS; // cycle through tracks
@@ -202,32 +207,12 @@ void loop() {
 
   }
   else if (currentState == STATE_REV_MTR) {
-    Serial.println("motor reverse");
-
-    display.clear(); // clear the 7-segment display
-    display.print("REVM"); // display "READ" on the 7-segment display
-  }
-  else {
-    Serial.println("state exception"); // default to idle state
-  }
-  
-
-  // ensure speaker off if not playing
-  if (currentState != STATE_PLAY) 
-    noTone(spkrPin);
-
-  if(currentState == STATE_READ){
-    driveMtr1(true, MTR_SPEED_FRONT); 
-    driveMtr2(true, MTR_SPEED_BACK); 
-  }
-  else if (currentState == STATE_REV_MTR){
+    // Serial.println("motor reverse");
     driveMtr1(false, MTR_SPEED_BACK); 
     driveMtr2(false, MTR_SPEED_FRONT); 
   }
   else {
-    stopMtr1(); // function to stop motor 1
-    stopMtr2(); // function to stop motor 2
+    Serial.println("state exception"); // default to idle state
   }
-  
 }
 
